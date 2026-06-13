@@ -6700,14 +6700,23 @@
     #tx-splash img { width: clamp(70px, 22vw, 110px); height: clamp(70px, 22vw, 110px); object-fit: contain; border-radius: 50%; border: 3px solid #f1c40f; animation: txPulse 1.5s infinite; }
     #tx-splash .tx-splash-text { color: #f1c40f; font-size: clamp(12px, 3.4vw, 15px); font-weight: 900; }
     #tx-splash .tx-splash-sub { font-size: clamp(9.5px, 2.7vw, 11px); opacity: 0.6; }
-    /* ===== بطاقة معلومات السائق الموسعة ===== */
-    .tx-driver-full { display: none; background: rgba(46,204,113,0.07); border: 1px solid #2ecc71; border-radius: 14px; padding: 11px 12px; margin-bottom: 8px; }
-    .tx-driver-full .tx-df-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-    .tx-df-photo { width: clamp(46px, 13vw, 56px); height: clamp(46px, 13vw, 56px); border-radius: 50%; object-fit: cover; border: 2px solid #2ecc71; background: rgba(241,196,15,0.15); flex-shrink: 0; cursor: pointer; }
-    .tx-df-plate { display: inline-block; background: #fff; color: #000; border: 2px solid #000; border-radius: 7px; padding: 2px 10px; font-weight: 900; font-size: clamp(11px, 3.2vw, 13px); letter-spacing: 1px; direction: ltr; }
-    .tx-df-row { display: flex; flex-wrap: wrap; gap: 5px 12px; font-size: clamp(9.5px, 2.7vw, 11px); opacity: 0.9; margin-bottom: 4px; }
-    .tx-df-carphoto { width: 100%; max-height: 110px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(46,204,113,0.5); margin-top: 6px; cursor: pointer; }
-    #tx-img-viewer { position: absolute; inset: 0; background: rgba(0,0,0,0.92); z-index: 60; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 12px; border-radius: inherit; padding: 16px; }
+    /* ===== بطاقة السائق المصغّرة الأنيقة (غير مزدحمة) ===== */
+    .tx-driver-full { display: none; background: rgba(46,204,113,0.06); border: 1px solid rgba(46,204,113,0.7); border-radius: 13px; padding: 7px 9px; margin-bottom: 7px; }
+    .tx-driver-full .tx-df-top { display: flex; align-items: center; gap: 8px; }
+    .tx-df-photo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1.5px solid #2ecc71; background: rgba(241,196,15,0.15); flex-shrink: 0; cursor: pointer; }
+    .tx-df-plate { display: inline-block; background: #fff; color: #000; border: 1.5px solid #000; border-radius: 6px; padding: 1px 8px; font-weight: 900; font-size: 10px; letter-spacing: 1.5px; direction: ltr; white-space: nowrap; }
+    .tx-df-mini-btn { background: rgba(241,196,15,0.1); border: 1px solid #f1c40f; color: #f1c40f; border-radius: 9px; padding: 6px 10px; font-size: 9.5px; font-weight: bold; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+    /* ===== مودال ملف السائق الكامل (صور السيارة + اللوحة + التفاصيل) ===== */
+    #tx-driver-profile-modal { position: absolute; inset: 0; background: rgba(0,0,0,0.88); z-index: 5000; display: none; align-items: flex-end; justify-content: center; border-radius: inherit; }
+    #tx-driver-profile-modal.show { display: flex; }
+    .tx-dpm-sheet { width: 100%; max-width: 480px; max-height: 86%; overflow-y: auto; background: #170517; border: 1px solid #f1c40f; border-bottom: none; border-radius: 20px 20px 0 0; padding: 14px 14px calc(16px + env(safe-area-inset-bottom, 0px)); }
+    .tx-dpm-row { display: flex; justify-content: space-between; gap: 10px; font-size: 10.5px; padding: 6px 2px; border-bottom: 1px dashed rgba(255,255,255,0.08); }
+    .tx-dpm-row .k { opacity: 0.55; white-space: nowrap; }
+    .tx-dpm-row .v { font-weight: bold; text-align: left; word-break: break-word; }
+    .tx-dpm-cars { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .tx-dpm-cars img { width: 100%; height: 90px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(241,196,15,0.5); cursor: pointer; }
+    .tx-dpm-cars .lbl { font-size: 8.5px; opacity: 0.55; text-align: center; margin-top: 3px; }
+    #tx-img-viewer { position: absolute; inset: 0; background: rgba(0,0,0,0.92); z-index: 6000; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 12px; border-radius: inherit; padding: 16px; }
     #tx-img-viewer.show { display: flex; }
     #tx-img-viewer img { max-width: 100%; max-height: 80%; border-radius: 12px; border: 2px solid #f1c40f; object-fit: contain; }
 
@@ -6842,19 +6851,31 @@
                     </div>
                     <button class="taxi-call-btn" id="taxi-call-driver-btn" onclick="taxiCallDriver()"><i class="fas fa-phone"></i></button>
                 </div>
-                <!-- بطاقة معلومات السائق الكاملة (صورة، لوحة، سيارة، تقييم) -->
+                <!-- بطاقة السائق المصغّرة الأنيقة: صورة مصغرة + اسم + لوحة + زر عرض الملف -->
                 <div class="tx-driver-full" id="tx-driver-full">
+                    <!-- الصف الأول: الصورة + الاسم والتقييم تحته + أزرار التواصل -->
                     <div class="tx-df-top">
-                        <img class="tx-df-photo" id="tx-df-photo" src="" alt="" onclick="txViewImage(this.src)" onerror="this.style.display='none'">
+                        <img class="tx-df-photo" id="tx-df-photo" src="" alt="" onclick="txOpenDriverProfileModal()" onerror="this.style.display='none'">
                         <div style="flex:1; min-width:0;">
-                            <div style="font-size:clamp(12px,3.4vw,14px); font-weight:900; color:#2ecc71;" id="tx-df-name">--</div>
-                            <div style="font-size:clamp(9px,2.5vw,10.5px); color:#f1c40f; margin-top:2px;" id="tx-df-rating">⭐ سائق جديد</div>
+                            <div style="font-size:11.5px; font-weight:900; color:#2ecc71; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="tx-df-name">--</div>
+                            <div style="font-size:9px; color:#f1c40f; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="tx-df-rating">⭐ سائق جديد</div>
                         </div>
-                        <button class="taxi-call-btn" id="tx-df-call" onclick="taxiCallDriver()"><i class="fas fa-phone"></i></button>
+                        <button class="taxi-call-btn" id="tx-df-wa" style="width:34px; height:34px; font-size:15px; background:linear-gradient(135deg,#25D366,#128C7E); flex-shrink:0;" title="واتساب" onclick="txWhatsappDriver()"><i class="fab fa-whatsapp"></i></button>
+                        <button class="taxi-call-btn" id="tx-df-call" style="width:34px; height:34px; font-size:13px; flex-shrink:0;" onclick="taxiCallDriver()"><i class="fas fa-phone"></i></button>
                     </div>
-                    <div style="text-align:center; margin-bottom:7px;"><span class="tx-df-plate" id="tx-df-plate">— — —</span></div>
-                    <div class="tx-df-row" id="tx-df-carinfo"></div>
-                    <img class="tx-df-carphoto" id="tx-df-carphoto" src="" alt="" onclick="txViewImage(this.src)" onerror="this.style.display='none'">
+                    <!-- الصف الثاني: اللوحة + زر استعراض التفاصيل -->
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:8px; padding-top:8px; border-top:1px dashed rgba(46,204,113,0.25);">
+                        <span class="tx-df-plate" id="tx-df-plate" style="flex-shrink:0;">— — —</span>
+                        <button class="tx-df-mini-btn" style="flex:1; padding:7px 6px;" onclick="txOpenDriverProfileModal()"><i class="fas fa-car"></i> استعراض تفاصيل السيارة</button>
+                    </div>
+                    <!-- عناصر مخفية للتوافق -->
+                    <div style="display:none;" id="tx-df-carinfo"></div>
+                    <img style="display:none;" id="tx-df-carphoto" src="" alt="">
+                </div>
+                <!-- حالة التتبع اللحظي: موقع السائق + الالتزام بالمسار -->
+                <div id="tx-live-status" style="display:none; align-items:center; gap:6px; background:rgba(52,152,219,0.08); border:1px solid rgba(52,152,219,0.5); border-radius:10px; padding:6px 10px; margin-bottom:7px; font-size:9.5px; font-weight:bold;">
+                    <span style="width:7px; height:7px; border-radius:50%; background:#2ecc71; animation:txPulse 1.2s infinite; flex-shrink:0;"></span>
+                    <span id="tx-live-status-text" style="color:#3498db;">تتبع مباشر لموقع السائق...</span>
                 </div>
                 <div class="taxi-loc-row"><i class="fas fa-map-marker-alt" style="color:#2ecc71;"></i><span class="taxi-loc-text" id="taxi-track-pickup-text">--</span></div>
                 <div class="taxi-loc-row"><i class="fas fa-flag-checkered" style="color:#e74c3c;"></i><span class="taxi-loc-text" id="taxi-track-dest-text">--</span></div>
@@ -6862,6 +6883,7 @@
                     <div class="tx-fare-meta" id="tx-trip-fare-meta">أجرة الرحلة</div>
                     <div class="tx-fare-amount" id="tx-trip-fare-amount">--</div>
                 </div>
+                <button onclick="txcOpenReport()" style="width:100%; background:rgba(230,126,34,0.08); color:#e67e22; border:1px solid rgba(230,126,34,0.6); border-radius:11px; padding:7px; font-size:9.5px; font-weight:bold; cursor:pointer; margin-bottom:8px;"><i class="fas fa-bullhorn"></i> إبلاغ الإدارة عن مشكلة</button>
                 <!-- كود إنهاء الرحلة: يعطيه العميل للسائق عند الوصول لتأكيد إتمام الرحلة -->
                 <div id="tx-complete-code-box" style="display:none; background:rgba(241,196,15,0.08); border:1.5px dashed #f1c40f; border-radius:13px; padding:9px 12px; margin-bottom:8px; text-align:center;">
                     <div style="font-size:clamp(9px,2.5vw,10.5px); opacity:0.75; margin-bottom:3px;">🔐 كود إنهاء الرحلة — أعطه للسائق عند الوصول</div>
@@ -6952,6 +6974,52 @@
         <div class="tx-splash-sub">شاهين إكسبرس تاكسي — حماة 🦅🚕</div>
     </div>
 
+    <!-- [TX-ASK] نافذة تأكيد داخل النظام (بديل نوافذ المتصفح نهائياً) -->
+    <div id="txc-ask-modal" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.85); z-index:7000; align-items:center; justify-content:center; padding:20px; border-radius:inherit;">
+        <div style="width:100%; max-width:280px; background:#160416; border:1.5px solid #f1c40f; border-radius:15px; padding:14px 13px; text-align:center;">
+            <div style="font-size:24px; margin-bottom:5px;" id="txc-ask-icon">❓</div>
+            <div style="font-size:11px; line-height:2; opacity:0.9; margin-bottom:11px;" id="txc-ask-msg">--</div>
+            <div style="display:flex; gap:7px;">
+                <button id="txc-ask-yes" style="flex:2; background:linear-gradient(135deg,#f1c40f,#d4af37); color:#000; border:none; border-radius:10px; padding:9px; font-size:10.5px; font-weight:900; cursor:pointer;">تأكيد</button>
+                <button onclick="document.getElementById('txc-ask-modal').style.display='none'" style="flex:1; background:transparent; color:#aaa; border:1px solid #555; border-radius:10px; padding:9px; font-size:10px; cursor:pointer;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+    <!-- [TX-REPORT] نافذة إبلاغ الإدارة من العميل -->
+    <div id="txc-report-modal" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.85); z-index:7000; align-items:center; justify-content:center; padding:20px; border-radius:inherit;">
+        <div style="width:100%; max-width:300px; background:#160416; border:1.5px solid #e67e22; border-radius:15px; padding:14px 13px;">
+            <div style="text-align:center; font-size:22px; margin-bottom:4px;">🚨</div>
+            <div style="text-align:center; color:#e67e22; font-weight:900; font-size:12px; margin-bottom:9px;">إبلاغ الإدارة</div>
+            <textarea id="txc-report-text" rows="4" placeholder="اكتب بلاغك أو شكواك هنا... سيصل للإدارة فوراً" style="width:100%; background:rgba(255,255,255,0.06); border:1px solid #555; border-radius:10px; padding:9px; color:#fff; font-size:10.5px; box-sizing:border-box; font-family:inherit; resize:none;"></textarea>
+            <div style="display:flex; gap:7px; margin-top:10px;">
+                <button onclick="txcSendReport()" style="flex:2; background:linear-gradient(135deg,#e67e22,#d35400); color:#fff; border:none; border-radius:10px; padding:9px; font-size:10.5px; font-weight:900; cursor:pointer;"><i class="fas fa-paper-plane"></i> إرسال البلاغ</button>
+                <button onclick="document.getElementById('txc-report-modal').style.display='none'" style="flex:1; background:transparent; color:#aaa; border:1px solid #555; border-radius:10px; padding:9px; font-size:10px; cursor:pointer;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+    <!-- مودال ملف السائق الكامل: صور السيارة من الخارج + اللوحة + كل التفاصيل -->
+    <div id="tx-driver-profile-modal" onclick="if(event.target===this)this.classList.remove('show')">
+        <div class="tx-dpm-sheet">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <img id="tx-dpm-photo" src="" style="width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid #2ecc71; cursor:pointer;" onclick="txViewImage(this.src)" onerror="this.style.display='none'">
+                <div style="flex:1; min-width:0;">
+                    <div id="tx-dpm-name" style="font-size:13px; font-weight:900; color:#2ecc71;">--</div>
+                    <div id="tx-dpm-rating" style="font-size:9.5px; color:#f1c40f; margin-top:2px;">⭐ --</div>
+                </div>
+                <button class="tx-header-btn" style="font-size:10px; padding:6px 10px;" onclick="document.getElementById('tx-driver-profile-modal').classList.remove('show')"><i class="fas fa-times"></i> إغلاق</button>
+            </div>
+            <div style="text-align:center; margin-bottom:9px;"><span class="tx-df-plate" id="tx-dpm-plate" style="font-size:13px; padding:3px 14px;">— — —</span><div style="font-size:8px; opacity:0.5; margin-top:3px;">رقم لوحة السيارة</div></div>
+            <div class="tx-dpm-row"><span class="k">نوع السيارة</span><span class="v" id="tx-dpm-type">--</span></div>
+            <div class="tx-dpm-row"><span class="k">الموديل</span><span class="v" id="tx-dpm-model">--</span></div>
+            <div class="tx-dpm-row"><span class="k">اللون</span><span class="v" id="tx-dpm-color">--</span></div>
+            <div class="tx-dpm-row" id="tx-dpm-desc-row" style="display:none;"><span class="k">الوصف</span><span class="v" id="tx-dpm-desc">--</span></div>
+            <div class="tx-dpm-cars" id="tx-dpm-cars"></div>
+            <div style="display:flex; gap:8px; margin-top:12px;">
+                <button class="taxi-main-btn" id="tx-dpm-call" style="flex:1; margin-top:0; font-size:12px; padding:11px;" onclick="taxiCallDriver()"><i class="fas fa-phone"></i> اتصال</button>
+                <button class="taxi-main-btn" id="tx-dpm-wa" style="flex:1; margin-top:0; font-size:12px; padding:11px; background:linear-gradient(135deg,#25D366,#128C7E); color:#fff;" onclick="txWhatsappDriver()"><i class="fab fa-whatsapp"></i> واتساب</button>
+            </div>
+        </div>
+    </div>
     <!-- عارض الصور (صورة السائق / السيارة) -->
     <div id="tx-img-viewer" onclick="this.classList.remove('show')">
         <img id="tx-img-viewer-img" src="" alt="">
@@ -7382,7 +7450,8 @@ function txMountMap(slotId) {
 function initTaxiMap() {
     if (_taxiMap) { _taxiMap.invalidateSize(); return; }
     _taxiMap = L.map('taxi-map', { zoomControl: true, attributionControl: false }).setView([TAXI_HAMA_CENTER.lat, TAXI_HAMA_CENTER.lng], 14);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(_taxiMap);
+    // بلاطات خرائط Google بالعربية — كل مكان مكتوب اسمه تماماً مثل قوقل ماب
+    L.tileLayer('https://{s}.google.com/vt/lyrs=m&hl=ar&gl=SA&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }).addTo(_taxiMap);
     // ملاحظة: لا نقيّد حركة الخريطة حتى تظهر علامة موقع العميل دائماً، والبحث يبقى محصوراً بحماة
     _taxiMap.on('click', function(e) {
         if (_taxiActiveOrderId) return;
@@ -7562,6 +7631,8 @@ function txPositionSearchResults() {
     const box = document.getElementById('taxi-search-results');
     const inp = document.getElementById('taxi-search-input');
     if (!box || !inp) return;
+    // نقل القائمة لمستوى body مرة واحدة — فوق الخريطة وكل الطبقات على الجوال مضموناً
+    if (box.parentElement !== document.body) document.body.appendChild(box);
     const r = inp.getBoundingClientRect();
     box.style.left = r.left + 'px';
     box.style.width = r.width + 'px';
@@ -7723,7 +7794,7 @@ function subscribeTaxiOrder() {
             const { data } = await _taxiDB.from('taxi_orders').select('*').eq('id', _taxiActiveOrderId).limit(1);
             if (data && data.length) { _taxiActiveOrder = data[0]; updateTaxiStatusUI(data[0]); }
         } catch (e) {}
-    }, 15000);
+    }, 8000); // تحديث احتياطي كل 8 ثوانٍ لضمان التتبع اللحظي حتى دون Realtime
 }
 
 function updateTaxiStatusUI(o) {
@@ -7733,14 +7804,21 @@ function updateTaxiStatusUI(o) {
     const dCard = document.getElementById('taxi-driver-card');
     const cancelBtn = document.getElementById('taxi-cancel-btn');
     if (o.driver_name) {
-        dCard.style.display = 'flex';
+        // بطاقة واحدة فقط: إن كانت البطاقة الأنيقة ظاهرة تبقى البسيطة مخفية (لا تكرار للاسم ولا لزر الاتصال)
+        const fullBox = document.getElementById('tx-driver-full');
+        const fullOn = fullBox && fullBox.style.display === 'block';
+        dCard.style.display = fullOn ? 'none' : 'flex';
         document.getElementById('taxi-driver-name').innerText = o.driver_name;
     }
-    if (o.driver_ref_id) txLoadDriverProfile(o.driver_ref_id); // بطاقة معلومات السائق الكاملة
+    if (o.driver_ref_id) txLoadDriverProfile(o.driver_ref_id); // بطاقة معلومات السائق الكاملة (تحل محل البسيطة فور جاهزيتها)
     if (o.fare) { document.getElementById('tx-trip-fare-amount').innerText = txFmtSyp(o.fare); }
     if (o.driver_lat && o.driver_lng && _taxiMap) {
-        if (_taxiDriverMarker) _taxiDriverMarker.setLatLng([o.driver_lat, o.driver_lng]);
-        else _taxiDriverMarker = L.marker([o.driver_lat, o.driver_lng], { icon: taxiIcon('🚕') }).addTo(_taxiMap).bindPopup("سائق التاكسي");
+        const dpos = [o.driver_lat, o.driver_lng];
+        if (_taxiDriverMarker) _taxiDriverMarker.setLatLng(dpos);
+        else _taxiDriverMarker = L.marker(dpos, { icon: taxiIcon('🚕'), zIndexOffset: 1000 }).addTo(_taxiMap).bindPopup("سائق التاكسي 🚕");
+        // متابعة السيارة: إن خرجت عن إطار العرض الحالي نلحقها بنعومة
+        try { if (!_taxiMap.getBounds().pad(-0.15).contains(dpos)) _taxiMap.panTo(dpos, { animate: true }); } catch (e) {}
+        txUpdateRouteAdherence(o.driver_lat, o.driver_lng, o.status);
     }
     switch (o.status) {
         case 'pending':
@@ -7790,6 +7868,34 @@ function updateTaxiStatusUI(o) {
             break;
     }
 }
+// [TAXI-LIVE] فحص التزام السائق بالمسار المرسوم (تجربة تطبيقات التاكسي الحديثة)
+let _txLastAdherence = 0;
+function txUpdateRouteAdherence(dLat, dLng, status) {
+    const box = document.getElementById('tx-live-status');
+    const txt = document.getElementById('tx-live-status-text');
+    if (!box || !txt) return;
+    box.style.display = 'flex';
+    const stLbl = status === 'accepted' ? 'السائق في الطريق إليك' : status === 'arrived' ? 'السائق بانتظارك' : status === 'started' ? 'الرحلة جارية' : 'تتبع مباشر';
+    // حساب أقرب مسافة بين السيارة والمسار المرسوم
+    let onRoute = null;
+    try {
+        if (_taxiRouteLine && Date.now() - _txLastAdherence > 4000) {
+            _txLastAdherence = Date.now();
+            const pts = _taxiRouteLine.getLatLngs();
+            let minD = Infinity;
+            const step = Math.max(1, Math.floor(pts.length / 120));
+            for (let i = 0; i < pts.length; i += step) {
+                const d = txHaversineKm({ lat: dLat, lng: dLng }, { lat: pts[i].lat, lng: pts[i].lng }) * 1000;
+                if (d < minD) minD = d;
+            }
+            onRoute = minD <= 150; // ضمن 150م من المسار = ملتزم
+            box._onRoute = onRoute;
+        } else onRoute = box._onRoute;
+    } catch (e) {}
+    if (onRoute === true) { txt.innerHTML = `${stLbl} — <span style="color:#2ecc71;">يسير على المسار المحدد ✅</span>`; }
+    else if (onRoute === false) { txt.innerHTML = `${stLbl} — <span style="color:#e67e22;">خرج عن المسار المحدد ⚠️</span>`; }
+    else txt.innerText = stLbl + ' — تتبع مباشر 📡';
+}
 function finishTaxiSession() {
     localStorage.removeItem('shahen_active_taxi_id');
     _taxiActiveOrderId = null;
@@ -7800,12 +7906,14 @@ function finishTaxiSession() {
     _txLoadedDriverRef = null;
     const dfBox = document.getElementById('tx-driver-full');
     if (dfBox) dfBox.style.display = 'none';
+    const lvBox = document.getElementById('tx-live-status');
+    if (lvBox) lvBox.style.display = 'none';
 }
 
 // ===== إلغاء طلب التاكسي =====
 async function cancelTaxiOrder() {
     if (!_taxiActiveOrderId) return;
-    if (!confirm("هل أنت متأكد من إلغاء طلب التاكسي؟")) return;
+    if (!window._txcCancelOk) { txcAsk("هل أنت متأكد من إلغاء طلب التاكسي؟", "🚕", "نعم، إلغاء الطلب", function() { window._txcCancelOk = true; cancelTaxiOrder(); window._txcCancelOk = false; }); return; }
     const { error } = await _taxiDB.from('taxi_orders').update({ status: 'cancelled' }).eq('id', _taxiActiveOrderId).in('status', ['pending', 'accepted']);
     if (error) { showNotify("تعذر الإلغاء حالياً", "error"); return; }
     showNotify("تم إلغاء طلب التاكسي ✅");
@@ -7814,9 +7922,67 @@ async function cancelTaxiOrder() {
 }
 
 // ===== الاتصال بالسائق =====
+// [TX-ASK] تأكيد داخل النظام — لا نوافذ متصفح نهائياً
+function txcAsk(msg, icon, yesLabel, cb) {
+    document.getElementById('txc-ask-msg').innerText = msg;
+    document.getElementById('txc-ask-icon').innerText = icon || '❓';
+    const yes = document.getElementById('txc-ask-yes');
+    yes.innerText = yesLabel || 'تأكيد';
+    yes.onclick = function() { document.getElementById('txc-ask-modal').style.display = 'none'; cb(); };
+    document.getElementById('txc-ask-modal').style.display = 'flex';
+}
+// [TX-REPORT] إرسال بلاغ من العميل للإدارة (يصل لقسم البلاغات في لوحة التاكسي)
+function txcOpenReport() {
+    document.getElementById('txc-report-text').value = '';
+    document.getElementById('txc-report-modal').style.display = 'flex';
+}
+async function txcSendReport() {
+    const txt = document.getElementById('txc-report-text').value.trim();
+    if (!txt) { showNotify("اكتب نص البلاغ أولاً ✍️", "error"); return; }
+    const cname = (window.currentUser && currentUser.name) || (_taxiActiveOrder && _taxiActiveOrder.customer_name) || 'عميل';
+    const cphone = (window.currentUser && currentUser.phone) || (_taxiActiveOrder && _taxiActiveOrder.customer_phone) || '';
+    try {
+        // بلاغ مهيكل لقسم "بلاغات العملاء" في لوحة الإدارة
+        try {
+            await _taxiDB.from('taxi_reports').insert([{
+                reporter_type: 'customer', reporter_name: cname, reporter_phone: cphone,
+                order_id: _taxiActiveOrderId || null,
+                car_type_name: (_taxiActiveOrder && _taxiActiveOrder.car_type_name) || null,
+                driver_name: (_taxiActiveOrder && _taxiActiveOrder.driver_name) || null,
+                driver_phone: (_taxiActiveOrder && _taxiActiveOrder.driver_phone) || null,
+                customer_name: cname, message: txt, is_read: false
+            }]);
+        } catch (e) { console.warn('taxi_reports غير مجهز بعد', e); }
+        // إشعار عام لصندوق البلاغات (توافق + تنبيه لحظي)
+        await _taxiDB.from('taxi_notifications').insert([{
+            target: 'admin', target_id: 'all',
+            title: 'بلاغ من عميل 🚨',
+            body: `${cname} ${cphone}${_taxiActiveOrderId ? ' — رحلة #' + _taxiActiveOrderId : ''}: ${txt}`,
+            is_read: false
+        }]);
+        document.getElementById('txc-report-modal').style.display = 'none';
+        showNotify("وصل بلاغك للإدارة ✅ وسيتم التعامل معه", "info");
+    } catch (e) { console.error(e); showNotify("تعذر الإرسال — حاول مجدداً", "error"); }
+}
 function taxiCallDriver() {
     if (_taxiActiveOrder && _taxiActiveOrder.driver_phone) window.location.href = 'tel:' + _taxiActiveOrder.driver_phone;
     else showNotify("رقم السائق غير متوفر بعد", "error");
+}
+// [TAXI-WHATSAPP] مراسلة السائق على واتساب — تحويل الرقم للصيغة الدولية تلقائياً
+function txWhatsappDriver() {
+    const raw = (_taxiActiveOrder && _taxiActiveOrder.driver_phone) || (_txDriverProfileData && _txDriverProfileData.driver_phone) || '';
+    let d = String(raw).replace(/\D/g, '');
+    if (!d) { showNotify("رقم السائق غير متوفر بعد", "error"); return; }
+    if (d.startsWith('00')) d = d.slice(2);
+    // دعم سوريا 🇸🇾 والسعودية 🇸🇦 تلقائياً حسب صيغة الرقم
+    if (d.startsWith('963') || d.startsWith('966')) { /* دولي جاهز */ }
+    else if (d.startsWith('05')) d = '966' + d.slice(1);       // سعودي 05xxxxxxxx
+    else if (d.startsWith('09')) d = '963' + d.slice(1);       // سوري 09xxxxxxxx
+    else if (d.startsWith('5') && d.length === 9) d = '966' + d;  // سعودي بلا صفر
+    else if (d.startsWith('9') && d.length === 9) d = '963' + d;  // سوري بلا صفر
+    else d = '963' + d.replace(/^0+/, '');
+    const msg = encodeURIComponent('مرحباً، أنا عميلك في رحلة شاهين تاكسي 🚖');
+    window.open('https://wa.me/' + d + '?text=' + msg, '_blank');
 }
 
 // ===== [TAXI-HISTORY] الرحلات السابقة والملغية (من جدول taxi_orders المستقل فقط) =====
@@ -7941,17 +8107,20 @@ function skipTaxiRating() { _txRateOrderId = null; txGo('tx-page-home'); }
 
 // ===== [TAXI-DRIVER-PROFILE] عرض معلومات السائق الكاملة للعميل بعد قبول الرحلة =====
 function txViewImage(src) {
-    if (!src) return;
+    // لا يفتح العارض إلا بصورة حقيقية (data: أو رابط صورة) — يمنع فتح صور فارغة/خاطئة بحجم الشاشة
+    if (!src || src === location.href || (!src.startsWith('data:image') && !/^https?:\/\//.test(src))) return;
     document.getElementById('tx-img-viewer-img').src = src;
     document.getElementById('tx-img-viewer').classList.add('show');
 }
 let _txLoadedDriverRef = null;
+let _txDriverProfileData = null; // آخر ملف سائق مجلوب — تستخدمه نافذة تفاصيل السيارة
 async function txLoadDriverProfile(refId) {
     if (!refId || _txLoadedDriverRef === String(refId)) return;
     _txLoadedDriverRef = String(refId);
     try {
         const { data } = await _taxiDB.from('taxi_drivers').select('*').eq('driver_ref_id', refId).limit(1);
         const p = (data && data[0]) || {};
+        _txDriverProfileData = p;
         const box = document.getElementById('tx-driver-full');
         box.style.display = 'block';
         document.getElementById('taxi-driver-card').style.display = 'none'; // البطاقة الموسعة تحل محل البسيطة
@@ -7967,12 +8136,16 @@ async function txLoadDriverProfile(refId) {
         if (p.car_model) parts.push(`<span>🚗 ${escTaxi(p.car_model)}</span>`);
         if (p.car_color) parts.push(`<span>🎨 ${escTaxi(p.car_color)}</span>`);
         if (p.car_description) parts.push(`<span>📝 ${escTaxi(p.car_description)}</span>`);
-        document.getElementById('tx-df-carinfo').innerHTML = parts.join('') || '<span style="opacity:0.5;">بيانات السيارة غير مكتملة</span>';
-        // صورة السيارة
+        const ciEl = document.getElementById('tx-df-carinfo');
+        ciEl.innerHTML = parts.join('') || '';
+        ciEl.style.display = 'none'; // التفاصيل تظهر فقط داخل نافذة الزر
+        // [ممنوع] لا تظهر أي صورة للسيارة في البطاقة — الصور حصراً داخل نافذة "استعراض تفاصيل السيارة"
         const cph = document.getElementById('tx-df-carphoto');
-        if (p.car_photo_url) { cph.src = p.car_photo_url; cph.style.display = 'block'; } else { cph.style.display = 'none'; }
-        // زر الاتصال حسب إعدادات الإدارة
+        cph.style.display = 'none';
+        // زرا الاتصال والواتساب حسب إعدادات الإدارة
         document.getElementById('tx-df-call').style.display = _taxiSettings.show_driver_phone ? 'block' : 'none';
+        const waBtn = document.getElementById('tx-df-wa');
+        if (waBtn) waBtn.style.display = _taxiSettings.show_driver_phone ? 'block' : 'none';
         // التقييم العام للسائق (متوسط تقييمات رحلاته المكتملة)
         try {
             const { data: rt } = await _taxiDB.from('taxi_orders').select('rating').eq('driver_ref_id', refId).not('rating', 'is', null).limit(500);
@@ -7985,10 +8158,55 @@ async function txLoadDriverProfile(refId) {
     } catch (e) { console.error(e); }
 }
 
+// ===== [TAXI-CAR-DETAILS] نافذة "استعراض تفاصيل السيارة" — معلومات السيارة كاملة بشكل أنيق =====
+async function txOpenDriverProfileModal() {
+    const p = _txDriverProfileData || {};
+    // الترويسة: صورة مصغرة + اسم + تقييم (من البطاقة)
+    const ph = document.getElementById('tx-dpm-photo');
+    if (p.photo_url) { ph.src = p.photo_url; ph.style.display = 'block'; } else { ph.style.display = 'none'; }
+    document.getElementById('tx-dpm-name').innerText = p.driver_name || (_taxiActiveOrder && _taxiActiveOrder.driver_name) || 'السائق';
+    const cardRating = document.getElementById('tx-df-rating');
+    document.getElementById('tx-dpm-rating').innerText = cardRating ? cardRating.innerText : '⭐ سائق جديد';
+    // رقم اللوحة بارز
+    document.getElementById('tx-dpm-plate').innerText = p.plate_number || '— — —';
+    // معلومات السيارة
+    document.getElementById('tx-dpm-type').innerText = p.car_type_name || '--';
+    document.getElementById('tx-dpm-model').innerText = p.car_model || '--';
+    document.getElementById('tx-dpm-color').innerText = p.car_color || '--';
+    const descRow = document.getElementById('tx-dpm-desc-row');
+    if (p.car_description) { descRow.style.display = 'flex'; document.getElementById('tx-dpm-desc').innerText = p.car_description; }
+    else descRow.style.display = 'none';
+    // زر الاتصال حسب إعدادات الإدارة
+    const callBtn = document.getElementById('tx-dpm-call');
+    if (callBtn) callBtn.style.display = _taxiSettings.show_driver_phone ? 'block' : 'none';
+    const waBtn2 = document.getElementById('tx-dpm-wa');
+    if (waBtn2) waBtn2.style.display = _taxiSettings.show_driver_phone ? 'block' : 'none';
+    // صور السيارة من الخارج (أمامية + خلفية) — تظهر فقط إن وُجدت فعلاً
+    const cars = document.getElementById('tx-dpm-cars');
+    cars.innerHTML = '';
+    const addCar = (src, lbl) => {
+        if (!src || (!src.startsWith('data:image') && !/^https?:\/\//.test(src))) return;
+        cars.innerHTML += `<div><img src="${src}" onclick="txViewImage(this.src)"><div class="lbl">${lbl}</div></div>`;
+    };
+    addCar(p.car_photo_url, 'السيارة — أمامية');
+    // الصورة الخلفية من طلب التوظيف المعتمد (إن وُجد)
+    try {
+        if (p.driver_ref_id) {
+            const { data: apps } = await _taxiDB.from('taxi_driver_applications').select('car_front_photo_url, car_back_photo_url').eq('driver_ref_id', String(p.driver_ref_id)).eq('status', 'approved').order('created_at', { ascending: false }).limit(1);
+            if (apps && apps.length) {
+                if (!p.car_photo_url) addCar(apps[0].car_front_photo_url, 'السيارة — أمامية');
+                addCar(apps[0].car_back_photo_url, 'السيارة — خلفية');
+            }
+        }
+    } catch (e) {}
+    if (!cars.innerHTML) cars.innerHTML = '<div style="grid-column:1/-1; text-align:center; font-size:9px; opacity:0.45; padding:8px;">لا تتوفر صور للسيارة</div>';
+    document.getElementById('tx-driver-profile-modal').classList.add('show');
+}
+
 // إغلاق نتائج البحث عند الضغط خارجها
 document.addEventListener('click', function(e) {
     const box = document.getElementById('taxi-search-results');
-    if (box && !e.target.closest('.taxi-search-wrap')) box.style.display = 'none';
+    if (box && !e.target.closest('.taxi-search-wrap') && !e.target.closest('#taxi-search-results')) box.style.display = 'none';
 });
 // ════════════════════════════════════════════════════════════════════════
 // [END-TAXI-SYSTEM]
