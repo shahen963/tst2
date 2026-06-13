@@ -7162,6 +7162,24 @@ const TAXI_HAMA_LANDMARKS = [
 
 // ===== [TAXI-STATE] متغيرات حالة نظام التاكسي =====
 let _taxiMap = null, _taxiPickupMarker = null, _taxiDestMarker = null, _taxiDriverMarker = null;
+// حركة انسيابية لسيارة السائق على خريطة العميل (تتحرك بسلاسة بدل القفز)
+let _txCarAnimReq = null;
+function txAnimateCustomerCar(marker, to) {
+    if (_txCarAnimReq) cancelAnimationFrame(_txCarAnimReq);
+    const from = marker.getLatLng();
+    // مسافة كبيرة جداً (أول ظهور أو قفزة) = نقل مباشر
+    const dLat = to[0] - from.lat, dLng = to[1] - from.lng;
+    if (Math.abs(dLat) > 0.05 || Math.abs(dLng) > 0.05) { marker.setLatLng(to); return; }
+    const start = performance.now(), dur = 2400; // مطابق لفترة التحديث ليكون متواصلاً
+    function ease(p){ return p < 0.5 ? 2*p*p : 1 - Math.pow(-2*p+2,2)/2; }
+    function frame(now) {
+        const raw = Math.min(1, (now - start) / dur);
+        const p = ease(raw);
+        marker.setLatLng([from.lat + dLat * p, from.lng + dLng * p]);
+        if (raw < 1) _txCarAnimReq = requestAnimationFrame(frame);
+    }
+    _txCarAnimReq = requestAnimationFrame(frame);
+}
 let _taxiRouteLine = null;
 let _taxiMode = 'pickup';
 let _taxiPickup = null, _taxiDest = null;
@@ -7794,7 +7812,7 @@ function subscribeTaxiOrder() {
             const { data } = await _taxiDB.from('taxi_orders').select('*').eq('id', _taxiActiveOrderId).limit(1);
             if (data && data.length) { _taxiActiveOrder = data[0]; updateTaxiStatusUI(data[0]); }
         } catch (e) {}
-    }, 8000); // تحديث احتياطي كل 8 ثوانٍ لضمان التتبع اللحظي حتى دون Realtime
+    }, 3000); // تحديث كل 3 ثوانٍ لتتبع موقع السائق لحظياً حتى دون Realtime
 }
 
 function updateTaxiStatusUI(o) {
@@ -7813,12 +7831,15 @@ function updateTaxiStatusUI(o) {
     if (o.driver_ref_id) txLoadDriverProfile(o.driver_ref_id); // بطاقة معلومات السائق الكاملة (تحل محل البسيطة فور جاهزيتها)
     if (o.fare) { document.getElementById('tx-trip-fare-amount').innerText = txFmtSyp(o.fare); }
     if (o.driver_lat && o.driver_lng && _taxiMap) {
-        const dpos = [o.driver_lat, o.driver_lng];
-        if (_taxiDriverMarker) _taxiDriverMarker.setLatLng(dpos);
-        else _taxiDriverMarker = L.marker(dpos, { icon: taxiIcon('🚕'), zIndexOffset: 1000 }).addTo(_taxiMap).bindPopup("سائق التاكسي 🚕");
+        const dpos = [Number(o.driver_lat), Number(o.driver_lng)];
+        if (_taxiDriverMarker) {
+            txAnimateCustomerCar(_taxiDriverMarker, dpos); // حركة انسيابية لسيارة السائق
+        } else {
+            _taxiDriverMarker = L.marker(dpos, { icon: taxiIcon('🚕'), zIndexOffset: 1000 }).addTo(_taxiMap).bindPopup("سائق التاكسي 🚕");
+        }
         // متابعة السيارة: إن خرجت عن إطار العرض الحالي نلحقها بنعومة
-        try { if (!_taxiMap.getBounds().pad(-0.15).contains(dpos)) _taxiMap.panTo(dpos, { animate: true }); } catch (e) {}
-        txUpdateRouteAdherence(o.driver_lat, o.driver_lng, o.status);
+        try { if (!_taxiMap.getBounds().pad(-0.15).contains(dpos)) _taxiMap.panTo(dpos, { animate: true, duration: 0.8 }); } catch (e) {}
+        txUpdateRouteAdherence(dpos[0], dpos[1], o.status);
     }
     switch (o.status) {
         case 'pending':
